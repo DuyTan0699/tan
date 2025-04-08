@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AQL Calculator</title>
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #1a1a1a;
+        margin: 0;
+        padding: 5px;
+        color: #fff;
+        overflow-x: hidden;
+    }
+    h1 {
+        text-align: center;
+        color: #fff;
+        margin: 10px 0;
+        font-size: 20px;
+    }
+    .container {
+        width: 100%;
+        max-width: 100%;
+        background: #333;
+        padding: 5px;
+        box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+        box-sizing: border-box;
+    }
+    .input-group {
+        margin-bottom: 8px;
+    }
+    label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 3px;
+        color: #fff;
+        font-size: 15px;
+    }
+    select, input[type="number"] {
+        padding: 5px;
+        width: 100%;
+        box-sizing: border-box;
+        background-color: #444;
+        color: #fff;
+        border: 1px solid #666;
+        font-size: 15px;
+    }
+    .checkbox-group {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+    .checkbox-group label {
+        font-weight: normal;
+        color: #fff;
+        font-size: 13px;
+    }
+    .toggle-btn {
+        background-color: #555;
+        color: #fff;
+        border: none;
+        padding: 3px 8px;
+        cursor: pointer;
+        border-radius: 2px;
+        margin-left: 5px;
+        font-size: 12px;
+    }
+    .toggle-btn:hover {
+        background-color: #666;
+    }
+    button {
+        padding: 8px;
+        background-color: #4CAF50;
+        color: #fff;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        display: block;
+        margin: 8px auto;
+        width: 100%;
+        font-size: 15px;
+    }
+    button:hover {
+        background-color: #45a049;
+    }
+    .result {
+        margin-top: 10px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 5px;
+        font-size: 12px;
+        color: #fff;
+    }
+    th, td {
+        border: 1px solid #666;
+        padding: 3px;
+        text-align: center;
+        word-wrap: break-word;
+    }
+    th {
+        background-color: #444;
+        font-size: 13px;
+    }
+    .error {
+        color: #ff5555;
+        text-align: center;
+        font-size: 15px;
+        margin-top: 5px;
+    }
+    .hidden {
+        display: none;
+    }
+
+    @media (max-width: 1080px) {
+        body {
+            padding: 3px;
+        }
+        h1 {
+            font-size: 18px;
+        }
+        .container {
+            padding: 3px;
+        }
+        label {
+            font-size: 14px;
+        }
+        select, input[type="number"] {
+            padding: 4px;
+            font-size: 14px;
+        }
+        .checkbox-group label {
+            font-size: 12px;
+        }
+        .toggle-btn {
+            padding: 2px 6px;
+            font-size: 11px;
+        }
+        button {
+            padding: 6px;
+            font-size: 14px;
+        }
+        table {
+            font-size: 11px;
+        }
+        th, td {
+            padding: 2px;
+        }
+        th {
+            font-size: 12px;
+        }
+    }
+</style>
+</head>
+<body>
+    <div class="container">
+        <h1>BẢNG TÍNH BẬC RÚT NGHIỆM AQL</h1>
+        <form id="aqlForm" onsubmit="calculateAQL(event)">
+            <div class="input-group">
+                <label>Kích thước lô:</label>
+                <input type="number" id="lot_size" value="()" required>
+            </div>
+            <div class="input-group">
+                <label>Bậc kiểm tra 1:</label>
+                <select id="inspection_level_1">
+                    <option value="D1">D1</option>
+                    <option value="D2">D2</option>
+                    <option value="D3" selected>D3</option>
+                    <option value="D4">D4</option>
+                    <option value="T1">T1</option>
+                    <option value="T2">T2</option>
+                    <option value="T3">T3</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>AQL cho bậc 1: <button type="button" class="toggle-btn" onclick="toggleAQL('aqls_1')">CHỌN</button></label>
+                <div class="checkbox-group hidden" id="aqls_1"> <!-- Thêm class "hidden" -->
+                    <label><input type="checkbox" name="aqls_1" value="0" checked> 0</label>
+                    <label><input type="checkbox" name="aqls_1" value="0.25"> 0.25</label>
+                    <label><input type="checkbox" name="aqls_1" value="0.4"> 0.4</label>
+                    <label><input type="checkbox" name="aqls_1" value="0.65"> 0.65</label>
+                    <label><input type="checkbox" name="aqls_1" value="1.0"> 1.0</label>
+                    <label><input type="checkbox" name="aqls_1" value="1.5"> 1.5</label>
+                    <label><input type="checkbox" name="aqls_1" value="2.5"> 2.5</label>
+                    <label><input type="checkbox" name="aqls_1" value="4.0"> 4.0</label>
+                    <label><input type="checkbox" name="aqls_1" value="6.5"> 6.5</label>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Bậc kiểm tra 2:</label>
+                <select id="inspection_level_2">
+                    <option value="D1">D1</option>
+                    <option value="D2">D2</option>
+                    <option value="D3">D3</option>
+                    <option value="D4" selected>D4</option>
+                    <option value="T1">T1</option>
+                    <option value="T2">T2</option>
+                    <option value="T3">T3</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>AQL cho bậc 2: <button type="button" class="toggle-btn" onclick="toggleAQL('aqls_2')">CHỌN</button></label>
+                <div class="checkbox-group hidden" id="aqls_2"> <!-- Thêm class "hidden" -->
+                    <label><input type="checkbox" name="aqls_2" value="0" checked> 0</label>
+                    <label><input type="checkbox" name="aqls_2" value="0.25"> 0.25</label>
+                    <label><input type="checkbox" name="aqls_2" value="0.4"> 0.4</label>
+                    <label><input type="checkbox" name="aqls_2" value="0.65" checked> 0.65</label>
+                    <label><input type="checkbox" name="aqls_2" value="1.0"> 1.0</label>
+                    <label><input type="checkbox" name="aqls_2" value="1.5"> 1.5</label>
+                    <label><input type="checkbox" name="aqls_2" value="2.5" checked> 2.5</label>
+                    <label><input type="checkbox" name="aqls_2" value="4.0"> 4.0</label>
+                    <label><input type="checkbox" name="aqls_2" value="6.5"> 6.5</label>
+                </div>
+            </div>
+            <button type="submit">TÍNH TOÁN</button>
+        </form>
+
+        <div id="error" class="error"></div>
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        const codeLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R'];
+        const codeToN = {
+            'A': 2, 'B': 3, 'C': 5, 'D': 8, 'E': 13, 'F': 20, 'G': 32, 'H': 50,
+            'J': 80, 'K': 125, 'L': 200, 'M': 315, 'N': 500, 'P': 800, 'Q': 1250, 'R': 2000
+        };
+        const aqlLevels = [0, 0.25, 0.4, 0.65, 1.0, 1.5, 2.5, 4.0, 6.5];
+        const table = [
+            ['0','↓', '↓', '↓', '↓', '↓', '↓', '↓', '0'],
+            ['0','↓', '↓', '↓', '↓', '↓', '↓', '0', '↑'],
+            ['0','↓', '↓', '↓', '↓', '↓', '0', '↑', '↓'],
+            ['0','↓', '↓', '↓', '↓', '0', '↑', '↓', '1'],
+            ['0','↓', '↓', '↓', '0', '↑', '↓', '1', '2'],
+            ['0','↓', '↓', '0', '↑', '↓', '1', '2', '3'],
+            ['0','↓', '0', '↑', '↓', '1', '2', '3', '5'],
+            ['0','0', '↑', '↓', '1', '2', '3', '5', '7'],
+            ['0','↑', '↓', '1', '2', '3', '5', '7', '10'],
+            ['0','↓', '1', '2', '3', '5', '7', '10', '14'],
+            ['0','1', '2', '3', '5', '7', '10', '14', '21'],
+            ['0','2', '3', '5', '7', '10', '14', '21', '↑'],
+            ['0','3', '5', '7', '10', '14', '21', '↑', '↑'],
+            ['0','5', '7', '10', '14', '21', '↑', '↑', '↑'],
+            ['0','7', '10', '14', '21', '↑', '↑', '↑', '↑'],
+            ['0','10', '14', '21', '↑', '↑', '↑', '↑', '↑']
+        ];
+        const inspectionLevels = {
+            'D1': [[3, 8, 'A'], [9, 15, 'A'], [16, 25, 'A'], [26, 50, 'A'], [51, 90, 'B'],
+                   [91, 150, 'B'], [151, 280, 'B'], [281, 500, 'B'], [501, 1200, 'C'],
+                   [1201, 3200, 'C'], [3201, 10000, 'C'], [10001, 35000, 'C'],
+                   [35001, 150000, 'D'], [150001, 500000, 'D'], [500001, Infinity, 'D']],
+            'D2': [[2, 8, 'A'], [9, 15, 'A'], [16, 25, 'A'], [26, 50, 'B'], [51, 90, 'B'],
+                   [91, 150, 'B'], [151, 280, 'C'], [281, 500, 'C'], [501, 1200, 'C'],
+                   [1201, 3200, 'D'], [3201, 10000, 'D'], [10001, 35000, 'D'],
+                   [35001, 150000, 'E'], [150001, 500000, 'E'], [500001, Infinity, 'E']],
+            'D3': [[2, 8, 'A'], [9, 15, 'A'], [16, 25, 'B'], [26, 50, 'B'], [51, 90, 'C'],
+                   [91, 150, 'C'], [151, 280, 'D'], [281, 500, 'D'], [501, 1200, 'E'],
+                   [1201, 3200, 'E'], [3201, 10000, 'F'], [10001, 35000, 'F'],
+                   [35001, 150000, 'G'], [150001, 500000, 'G'], [500001, Infinity, 'H']],
+            'D4': [[2, 8, 'A'], [9, 15, 'A'], [16, 25, 'B'], [26, 50, 'C'], [51, 90, 'C'],
+                   [91, 150, 'D'], [151, 280, 'E'], [281, 500, 'E'], [501, 1200, 'F'],
+                   [1201, 3200, 'G'], [3201, 10000, 'G'], [10001, 35000, 'H'],
+                   [35001, 150000, 'J'], [150001, 500000, 'J'], [500001, Infinity, 'K']],
+            'T1': [[2, 8, 'A'], [9, 15, 'A'], [16, 25, 'B'], [26, 50, 'C'], [51, 90, 'C'],
+                   [91, 150, 'D'], [151, 280, 'E'], [281, 500, 'F'], [501, 1200, 'G'],
+                   [1201, 3200, 'H'], [3201, 10000, 'J'], [10001, 35000, 'K'],
+                   [35001, 150000, 'L'], [150001, 500000, 'M'], [500001, Infinity, 'N']],
+            'T2': [[2, 8, 'A'], [9, 15, 'B'], [16, 25, 'C'], [26, 50, 'C'], [51, 90, 'E'],
+                   [91, 150, 'F'], [151, 280, 'G'], [281, 500, 'H'], [501, 1200, 'J'],
+                   [1201, 3200, 'K'], [3201, 10000, 'L'], [10001, 35000, 'M'],
+                   [35001, 150000, 'N'], [150001, 500000, 'P'], [500001, Infinity, 'Q']],
+            'T3': [[2, 8, 'B'], [9, 15, 'C'], [16, 25, 'D'], [26, 50, 'E'], [51, 90, 'F'],
+                   [91, 150, 'G'], [151, 280, 'H'], [281, 500, 'J'], [501, 1200, 'K'],
+                   [1201, 3200, 'L'], [3201, 10000, 'M'], [10001, 35000, 'N'],
+                   [35001, 150000, 'P'], [150001, 500000, 'Q'], [500001, Infinity, 'R']]
+        };
+
+        function getCk(N, inspectionLevel) {
+            const ranges = inspectionLevels[inspectionLevel];
+            for (let [minLot, maxLot, ck] of ranges) {
+                if (N >= minLot && N <= maxLot) return ck;
+            }
+            return null;
+        }
+
+        function findNC(startCk, aql) {
+            let row = codeLetters.indexOf(startCk);
+            let col = aqlLevels.indexOf(parseFloat(aql));
+            let currentRow = row;
+            while (true) {
+                let cell = table[currentRow][col];
+                if (!isNaN(cell)) {
+                    return { n: codeToN[codeLetters[currentRow]], c: parseInt(cell) };
+                } else if (cell === '↓') {
+                    currentRow++;
+                    if (currentRow >= table.length) throw new Error("Mũi tên vượt ra ngoài bảng");
+                } else if (cell === '↑') {
+                    currentRow--;
+                    if (currentRow < 0) throw new Error("Mũi tên vượt ra ngoài bảng");
+                } else {
+                    throw new Error("Giá trị ô không hợp lệ");
+                }
+            }
+        }
+
+        function toggleAQL(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.classList.toggle('hidden');
+        }
+
+        function calculateAQL(event) {
+            event.preventDefault();
+
+            const lotSize = parseInt(document.getElementById('lot_size').value);
+            const inspectionLevel1 = document.getElementById('inspection_level_1').value;
+            const inspectionLevel2 = document.getElementById('inspection_level_2').value;
+            const aqls1 = Array.from(document.querySelectorAll('#aqls_1 input:checked')).map(input => input.value);
+            const aqls2 = Array.from(document.querySelectorAll('#aqls_2 input:checked')).map(input => input.value);
+            const errorDiv = document.getElementById('error');
+            const resultDiv = document.getElementById('result');
+
+            errorDiv.textContent = '';
+            resultDiv.innerHTML = '';
+
+            if (isNaN(lotSize)) {
+                errorDiv.textContent = 'Vui lòng nhập kích thước lô là số nguyên';
+                return;
+            }
+
+            resultDiv.innerHTML = `<h2>Kích thước lô: ${lotSize}</h2>`;
+
+            const ck1 = getCk(lotSize, inspectionLevel1);
+            let table1 = '';
+            if (!ck1) {
+                table1 = `<h3>Bậc kiểm tra ${inspectionLevel1}: Kích thước lô không hợp lệ</h3>`;
+            } else {
+                table1 = `<h3>Bậc kiểm tra: ${inspectionLevel1} | Mã chữ: ${ck1}</h3>`;
+                table1 += `<table>
+                    <tr><th>Mức AQL</th><th>Số lượng kiểm tra</th><th>Số lỗi cho phép</th></tr>`;
+                if (aqls1.length === 0) {
+                    table1 += `<tr><td colspan="3">Chưa chọn mức AQL nào</td></tr>`;
+                } else {
+                    aqls1.forEach(aql => {
+                        try {
+                            const { n, c } = findNC(ck1, aql);
+                            table1 += `<tr><td>${aql}</td><td>${n}</td><td>${c}</td></tr>`;
+                        } catch (e) {
+                            table1 += `<tr><td>${aql}</td><td colspan="2">Lỗi: ${e.message}</td></tr>`;
+                        }
+                    });
+                }
+                table1 += `</table>`;
+            }
+            resultDiv.innerHTML += table1;
+
+            const ck2 = getCk(lotSize, inspectionLevel2);
+            let table2 = '';
+            if (!ck2) {
+                table2 = `<h3>Bậc kiểm tra ${inspectionLevel2}: Kích thước lô không hợp lệ</h3>`;
+            } else {
+                table2 = `<h3>Bậc kiểm tra: ${inspectionLevel2} | Mã chữ: ${ck2}</h3>`;
+                table2 += `<table>
+                    <tr><th>Mức AQL</th><th>Số lượng kiểm tra</th><th>Số lỗi cho phép</th></tr>`;
+                if (aqls2.length === 0) {
+                    table2 += `<tr><td colspan="3">Chưa chọn mức AQL nào</td></tr>`;
+                } else {
+                    aqls2.forEach(aql => {
+                        try {
+                            const { n, c } = findNC(ck2, aql);
+                            table2 += `<tr><td>${aql}</td><td>${n}</td><td>${c}</td></tr>`;
+                        } catch (e) {
+                            table2 += `<tr><td>${aql}</td><td colspan="2">Lỗi: ${e.message}</td></tr>`;
+                        }
+                    });
+                }
+                table2 += `</table>`;
+            }
+            resultDiv.innerHTML += table2;
+        }
+    </script>
+    <!-- Xóa script Cloudflare để tránh lỗi trên iOS -->
+</body>
+</html>
